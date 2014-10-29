@@ -1,10 +1,17 @@
 package sistDist.blackjack;
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+
+import sistDist.blackkack.command.AcceptCardCommand;
+import sistDist.blackkack.command.StopCardsCommand;
 
 /**
  *
@@ -14,6 +21,7 @@ public class PlayerPanel extends JPanel {
     private String playerName;
     private JLabel lblPlayerName;
     ImagePanel imagePanel;
+    SocketThread socketThread;
     
 
     public PlayerPanel(String playerName){
@@ -49,6 +57,29 @@ public class PlayerPanel extends JPanel {
     
     public void changeCard(String value, String type, int position){
     	imagePanel.changeImage("images/Playing_card_"+type+"_"+value+".png", position);
+    }
+    
+    public void addButtons(SocketThread socketThread, Player player){
+    	JButton btnPlus = new JButton("+");
+    	btnPlus.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				AcceptCardCommand acceptCardCommand = new AcceptCardCommand();
+				acceptCardCommand.setPlayer(player);
+				socketThread.sendCommand(acceptCardCommand.getMetadata());
+			}
+    	});
+    	JButton btnStop = new JButton("O");
+    	btnStop.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				StopCardsCommand stopCardsCommand =  new StopCardsCommand();
+				stopCardsCommand.setPlayer(player);
+				socketThread.sendCommand(stopCardsCommand.getMetadata());
+			}
+    	});
+    	this.add(btnPlus);
+    	this.add(btnStop);
     }
     
     private String constructPlayerNameFormat(String playerName){

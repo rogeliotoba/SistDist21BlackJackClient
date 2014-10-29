@@ -9,8 +9,9 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JDialog;
+
 import sistDist.blackkack.command.*;
-import sistDist.blackkack.command.Command;
 
 public class SocketThread extends Thread {
 	private List<Player> players = new ArrayList<>();
@@ -30,6 +31,7 @@ public class SocketThread extends Thread {
 		
         Player crupier = new Player("Dealer");
         Player player = new Player(username);
+        player.getPlayerPanel().addButtons(this, player);
         
         players.add(crupier);
         players.add(player);
@@ -54,6 +56,10 @@ public class SocketThread extends Thread {
     	
         //Register to game
         out.println(new RegisterCommand(player).getMetadata());
+	}
+	
+	public void sendCommand(String command){
+		out.println(command);
 	}
 	
     public void run() {
@@ -97,18 +103,37 @@ public class SocketThread extends Thread {
 								}
 							}
 							break;
-							
+
 						case "NewUser":
 							String newUserUsername = CommandInterpreter.getAttribute(stringCommand, "username");
 							Player newPlayer = new Player(newUserUsername);
 							players.add(newPlayer);
 							gui.addPlayer(newPlayer);
 							break;
+							
+						case "PlayerLoose":
+							String looserUsername = CommandInterpreter.getAttribute(stringCommand, "username");
+							for(Player player:players){
+								if(player.getPlayerName().equalsIgnoreCase(looserUsername)){
+									player.getPlayerPanel().setPlayerName(looserUsername+" - Pierde");
+								}
+							}
+							break;
+							
+						case "PlayerWin":
+							String winerUsername = CommandInterpreter.getAttribute(stringCommand, "username");
+							for(Player player:players){
+								if(player.getPlayerName().equalsIgnoreCase(winerUsername)){
+									player.getPlayerPanel().setPlayerName(winerUsername+" - Gana");
+								}
+							}
+							break;
 					}
 				}
 				else{
 					this.stop();
 				}
+		
 			} catch (IOException e) {
 				//Auto-generated catch block
 				e.printStackTrace();
